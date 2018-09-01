@@ -4,7 +4,11 @@ RM      = rm -f
 
 default: all
 
-all: paralelotopo
+all: guess
 
-paralelotopo: main.cpp
-	$(CC) main.cpp -o main.o $(CFLAGS)
+guess: main.cpp
+	$(CC) main.cpp -o o.o $(CFLAGS)
+
+list: generate_list.cpp
+	$(CC) generate_list.cpp -o list.o $(CFLAGS)
+
