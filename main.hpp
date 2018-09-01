@@ -5,10 +5,15 @@
 #include <gmp.h>
 #include <chrono>
 
-#define N 1024
-#define M 16
-#define logQ 80
-#define BITS 1024
+// Number of bits of each factor
+#define BITS 64
+
+// Hamming weight
+#define H 7
+
+// Block size
+#define K 10
 
 
-void multi(gmp_randstate_t, int);
+
+void inverse(mpz_t, mpz_t, mpz_t);
