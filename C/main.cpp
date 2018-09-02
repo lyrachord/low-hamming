@@ -1,6 +1,8 @@
 #include "main.hpp"
 #include "parameters.hpp"
 using namespace std;
+using namespace std::chrono;
+
 
 string CURRENT_DIR = "/home/botvinnik/coding/low_hamming/";
 
@@ -27,16 +29,29 @@ int main(int argc, char** argv){
   // Generate keys
   srand(time(NULL));
   generate_N();
+  int tries = 1;
+  while( test_keys(P,Q)==false ){
+    generate_N();
+    tries++;
+  }
   print_keys();
   state_sanity();
 
+  cout << "Found keys after "<< tries << " tries" << endl << endl;
 
+  // Start guessing 
+
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  
   for(int i = block; i< (int)BITS/K; i++){
     cout << "Block " << i+1 << ":";
     guess_block(i);
   }
   
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  auto duration = duration_cast<microseconds>( t2 - t1 ).count();
 
+  cout << "Completed in "<< duration <<" microseconds." << endl;
   return 0;
 
 }
@@ -54,9 +69,9 @@ void state_sanity(){
   mpz_t sanity;
   mpz_init(sanity);
   mpz_ui_pow_ui(sanity, SCOPE, (int)BITS/K);
-    
 
-  cout << endl << "\033[1;31mRuntime: 2^"<< mpz_sizeinbase (sanity, 2) << "\033[0m" << endl << endl;
+
+  cout << endl << "\033[1;31mTotal Runtime: 2^"<< mpz_sizeinbase (sanity, 2) << "\033[0m" << endl << endl;
 
 
 }
@@ -64,7 +79,7 @@ void state_sanity(){
 
 void guess_block(int block){
 
-    mpz_t guess_p, guess_q, real_p, small_modulus, modulus;
+  mpz_t guess_p, guess_q, real_p, small_modulus, modulus;
   mpz_inits(guess_p, guess_q, real_p, small_modulus, modulus, NULL);
   
 
@@ -124,7 +139,7 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
 
       // Compute inverse
       
-    
+      
       inverse(invp, guess_p, modulus);
       
       // Compute corresponding guess_q
@@ -138,7 +153,7 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
       if(hamming(guess_q_substr) <= MAX_WEIGHT){
         if(mpz_cmp(guess_p,real_p)==0){
           //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
-          
+
           success += "\033[1;32mFound in position "+to_string(cont)+"\033[0m\n"; 
         }
         else{
@@ -206,7 +221,7 @@ void print_keys(){
 
 void inverse (mpz_t inv, mpz_t x, mpz_t modulus){
 
-  
+
   mpz_t a, b, u, x_aux;
 
   mpz_inits(a, b, u, x_aux, NULL);
@@ -280,9 +295,31 @@ string format(string ss){
   }
 
   string ret = "\n";
+  int block_number;
   for(int i = 0; i<=(int) (s.length()-1)/K; i++){
 
-    ret = ret + s.substr(i*K,K)+"\n";
+    block_number = (int) (s.length()-1)/K - i + 1;
+    ret = ret +  s.substr(i*K,K)+ "  /"+ to_string(block_number)+"\n";
   }
   return ret;
+}
+
+
+bool test_keys(mpz_t p, mpz_t q){
+
+  string p_str = mpz_get_str(NULL, 2, p);
+  string q_str = mpz_get_str(NULL, 2, q);
+
+  string limb_p;
+  string limb_q;
+
+  for(int i = 0; i < (int) BITS/K; i++){
+    // Read the i-th block of p and q
+    limb_p = p_str.substr(i*K,K);
+    limb_q = q_str.substr(i*K,K);
+    if(hamming(limb_p) > MAX_WEIGHT || hamming(limb_q) > MAX_WEIGHT){
+      return false;
+    }
+  }
+  return true;
 }
