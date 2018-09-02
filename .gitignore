@@ -1,3 +1,7 @@
+# Potentially heavy precomputations
+
+precomp/
+
 # Prerequisites
 *.d
 

@@ -1,5 +1,5 @@
 #include "main.hpp"
-
+#include "parameters.hpp"
 using namespace std;
 
 string CURRENT_DIR = "/home/botvinnik/coding/low_hamming/";
@@ -13,26 +13,51 @@ bool FORMAT = false;
 
 int main(int argc, char** argv){
 
-  // Fetch input. Should be an int (number of blocks already guessed)
-  char *p;
-  int block = (int) strtol(argv[1],&p,10);
-  if(argc == 3)
+  // Fetch input. 
+  //char *p;
+  //int block = (int) strtol(argv[1],&p,10);
+  if(argc == 2)
   {
-    if((string)argv[2] == "-f"){
+    if((string)argv[1] == "-f"){
       FORMAT = true;
     }  
   }
+  int block = 0;
   
+  // Generate keys
   srand(time(NULL));
   generate_N();
+  print_keys();
+  state_sanity();
+
 
   for(int i = block; i< (int)BITS/K; i++){
-    cout << "Block " << i+1 << endl;
+    cout << "Block " << i+1 << ":";
     guess_block(i);
   }
   
 
   return 0;
+
+}
+
+void state_sanity(){
+
+  cout << "log(p) = " << BITS << endl;
+  cout << "block_size = " << K << endl;
+  cout << "number_of_blocks = " << (int) BITS/K << endl;
+  cout << "list_scope = " << SCOPE << endl;
+
+  // Algorithms runs in scope^(number of blocks).
+  // Display log2() of that number. Should be less than 64.
+
+  mpz_t sanity;
+  mpz_init(sanity);
+  mpz_ui_pow_ui(sanity, SCOPE, (int)BITS/K);
+    
+
+  cout << endl << "\033[1;31mRuntime: 2^"<< mpz_sizeinbase (sanity, 2) << "\033[0m" << endl << endl;
+
 
 }
 
@@ -112,7 +137,7 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
       guess_q_substr = guess_q_str.substr(0,K);
       if(hamming(guess_q_substr) <= MAX_WEIGHT){
         if(mpz_cmp(guess_p,real_p)==0){
-          //cout << "\033[1;31mGuess_p[2]:\033[0m" << format(guess_p_str);
+          //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
           
           success += "\033[1;32mFound in position "+to_string(cont)+"\033[0m\n"; 
         }
@@ -164,6 +189,11 @@ void generate_N(){
   mpz_mul(N, P, Q);
 
 
+
+}
+
+void print_keys(){
+
   p_str = mpz_get_str(p_str, 2, P);
   q_str = mpz_get_str(q_str, 2, Q);
   n_str = mpz_get_str(n_str, 2, N);
@@ -172,7 +202,6 @@ void generate_N(){
   cout << "p[2] = " << format(p_str) << endl;
   cout << "q[2] = " << format(q_str) << endl;
   cout << "n[2] = " << format(n_str) << endl;
-
 }
 
 void inverse (mpz_t inv, mpz_t x, mpz_t modulus){
