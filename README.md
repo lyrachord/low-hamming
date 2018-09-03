@@ -2,6 +2,9 @@
 
 C++ and GMP bignum library
 
+In C/, "make" and then ./o.o 
+if list does not exist, generate it with "make list && ./list.o" and save output to precomp/<block_size>-<max_weight_per_block>
+
 
 ## Benchmarks for log2(n)= 2048
 
