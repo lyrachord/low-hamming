@@ -9,10 +9,10 @@ C++ and GMP bignum library
 log2(p) = 1024
 Hamming(p) = 16
 Poisson = 1/64
-Key ocurrence: 1/150 (?)
+Key ocurrence: High (1/10 ?)
 
-Block_size = 95, scope = 4, max_weight = 2.
-Runtime: 2^25, 4 seconds (9 hours GPU)
+Block_size = 100, scope = 3, max_weight = 3.
+Runtime: 2^16, 98 seconds (26 minutes GPU)
 
 ### Brute-force security = 138 bits
 log2(p) = 1024
@@ -22,7 +22,7 @@ Key ocurrence: 1/10 (?)
 
 Block_size = 70, scope = 4, max_weight = 3.
 Runtime: 2^29, 45 seconds (68 days GPU)
-HERE
+
 
 ## Benchmarks for log2(n)= 4096
 
