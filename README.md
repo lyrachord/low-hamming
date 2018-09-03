@@ -5,35 +5,43 @@ C++ and GMP bignum library
 
 ## Benchmarks for log2(n)= 2048
 
-### Brute-force security = 138 bits
-log2(p) = 1024
-Hamming(p) = 20
-
-Runtime: 2^37, 3.5 seconds (1 GPU year)
-Block_size = 70, scope = 6, max_weight = 3.
-
-
 ### Brute-force security = 115 bits
 log2(p) = 1024
 Hamming(p) = 16
+Poisson = 1/64
+Key ocurrence: 1/150 (?)
 
-Runtime: 2^25, 4 seconds (9 GPU hours)
-Block_size = 85, scope = 4, max_weight = 2.
+Block_size = 95, scope = 4, max_weight = 2.
+Runtime: 2^25, 4 seconds (9 hours GPU)
+
+### Brute-force security = 138 bits
+log2(p) = 1024
+Hamming(p) = 20
+Poisson = 1/52
+Key ocurrence: 1/10 (?)
+
+Block_size = 70, scope = 4, max_weight = 3.
+Runtime: 2^29, 45 seconds (68 days GPU)
+HERE
 
 ## Benchmarks for log2(n)= 4096
 
 ### Brute-force security = 88 bits
 log2(p) = 2048
 Hamming(p) = 10
+Poisson = 1/205
+Key ocurrence: Medium (25% ?)
 
-Runtime: 2^24, 36 seconds (1 GPU day)
 Block_size = 205, scope = 6, max_weight = 2.
+Runtime: 2^24, 36 seconds (1 day GPU)
 
 ### Brute-force security = 124 bits
 log2(p) = 2048
 Hamming(p) = 15
+Poisson: 1/136
+Key occurrence: Rare (1/150?)
 
-Runtime: 2^26, 46 seconds (8 GPU days)
 Block_size = 200, scope = 6, max_weight = 2
+Runtime: 2^26, 40 seconds (7 days GPU)
 
 
