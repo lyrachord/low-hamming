@@ -48,6 +48,7 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
 # References
 
+
 ## Factoring Unbalanced Moduli with Known Bits 
 
 ### ICISC 2009, Eric Brier, David Naccache, Mehdi Tibouchi
@@ -63,6 +64,11 @@ Runtime: 2^26, 40 seconds (7 days GPU)
   Not necessarily balanced N=pq, factorize with access to an oracle that outputs N'=p'q' such that p,p' share the t LSBs.
   We have t >= k/(k-1) alpha where k queries have been made, and the outputs are k moduli N_1, ... , N_k, each with log(q_i) = alpha.
   TODO: Lattice reduction of section 3.
+
+## Further Results on Implicit Factoring in Polynomial Time
+### 2009 Advances in Mathematics of Communications
+
+  Extension of May et al PKC 2009. Same problem, improved results.
 
 ## Factoring RSA Modulus Using Prime Reconstruction from Random Known Bits
 ### AFRICACRYPT 2010, Miatra, Sarkar, Sen Gupta
@@ -86,8 +92,10 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 ## Twenty Years of Attacks on the RSA Cryptosystem
 ### 1999 Dan Boneh
 
-  Nice reading. Does not say much about this.
-  TODO: Coppersmith
+  Nice reading. 
+  Theorem 10: (Coppersmith)
+  Given the n/4 LBSs or the n/4 MSBs of p, one can factorize RSA moduli (note that this is RSA, not factoring, i.e. it uses ed=1 mod phi(n)).
+
 
 
 ## A Coding-Theoretic Approach to Recovering Noisy RSA Keys
@@ -102,9 +110,11 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
   TODO. The low Hamming hypothesis reduces to this (where the case that the recovered "noisy" key is p=0, and we want to "correct" h bits)...
 
-  
 
+## Using LLL-Reduction for Solving RSA and Factorization Problems: A Survey
+### Alexander May, chapter of the book The LLL Algorithm: Survey and Applications
 
+  Nice read. TODO. 
 
 
 
