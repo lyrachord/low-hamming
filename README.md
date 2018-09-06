@@ -47,10 +47,8 @@ Block_size = 200, scope = 6, max_weight = 2
 Runtime: 2^26, 40 seconds (7 days GPU)
 
 
+###Factoring Unbalanced Moduli with Known Bits 
 
-# References
-
-##Factoring Unbalanced Moduli with Known Bits 
 ### ICISC 2009, Eric Brier, David Naccache, Mehdi Tibouchi
 
   LLL method.
