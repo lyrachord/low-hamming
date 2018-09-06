@@ -70,6 +70,14 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
   Extension of May et al PKC 2009. Same problem, improved results.
 
+## Factoring RSA moduli with weak prime factors
+### C2SI-Berger2015 
+
+  A prime p is called weak if there exist parameters a, u_0, u_1, ... , u_k, M_1, ... , M_k such that ap = u_0 + u_1M_1 + ... + u_kM_k.
+  This may yield our results: a = 1, u_0 = 1, u_i = 1, M_i = 2^i for some index i\in I.
+  TODO: Check bounds on parameters.
+  Does not cover the case "HD(p,q) small". 
+
 ## Factoring RSA Modulus Using Prime Reconstruction from Random Known Bits
 ### AFRICACRYPT 2010, Miatra, Sarkar, Sen Gupta
 
@@ -115,6 +123,9 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 ### Alexander May, chapter of the book The LLL Algorithm: Survey and Applications
 
   Nice read. TODO. 
+
+
+
 
 
 
