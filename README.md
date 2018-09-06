@@ -46,8 +46,9 @@ Key occurrence: Rare (1/150?)
 Block_size = 200, scope = 6, max_weight = 2
 Runtime: 2^26, 40 seconds (7 days GPU)
 
+# References
 
-###Factoring Unbalanced Moduli with Known Bits 
+## Factoring Unbalanced Moduli with Known Bits 
 
 ### ICISC 2009, Eric Brier, David Naccache, Mehdi Tibouchi
 
@@ -55,7 +56,7 @@ Runtime: 2^26, 40 seconds (7 days GPU)
   Unbalanced n = pq > q^3. Factorize when (i) 2log(q) contiguous bits of p are known, (ii) two chunks of known bits of p totaling 1.5 log(q) bits.
 
 
-##Implicit Factoring: On Polynomial Time Factoring Given Only an Implicit Hint
+## Implicit Factoring: On Polynomial Time Factoring Given Only an Implicit Hint
 ### PKC 2009, Alexander May, Maike Ritzenhofen
 
   Good introduction.
@@ -69,8 +70,8 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
   N = pq balanced, when some random subset of the bits are known in the LSB halves. And give directions for MSB.
 
-##On Factoring Arbitrary Integers with Known Bits
-###2007 Workshop "Kryptologie in Theorie und Praxis"
+## On Factoring Arbitrary Integers with Known Bits
+### 2007 Workshop "Kryptologie in Theorie und Praxis"
 
   TODO:
   "Rivest and Shamir [RS86] showed in 1985, that for an RSA-modulus N = pq an amount of 1/3 log N of the bits of p is sufficient to factor N. This result was improved by Coppersmith [Cop96] in 1996 to 3/10 log N bits, and in 1997 again by Coppersmith [Cop97] to 1/4 log N bits. In 1999, Boneh, Durfee and Howgrave-Graham [BDHG99] generalized the Coppersmith result to moduli of the form N=p^k q. They showed that k/(k+1)^2 log N bits are sufficient to find the factorization of N in polynomial time. One should notice that this result coincides with the one of Coppersmith for the RSA case, where  k = 1."
