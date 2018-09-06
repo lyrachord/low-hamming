@@ -94,7 +94,7 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
   Nice reading. 
   Theorem 10: (Coppersmith)
-  Given the n/4 LBSs or the n/4 MSBs of p, one can factorize RSA moduli (note that this is RSA, not factoring, i.e. it uses ed=1 mod phi(n)).
+  Given the log(n)/4 LBSs or the log(n)/4 MSBs of p, one can factorize RSA moduli (note that this is RSA, not factoring, i.e. it uses ed=1 mod phi(n)).
 
 
 
