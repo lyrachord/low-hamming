@@ -46,6 +46,11 @@ Key occurrence: Rare (1/150?)
 Block_size = 200, scope = 6, max_weight = 2
 Runtime: 2^26, 40 seconds (7 days GPU)
 
+# Idea: Use Gröebner basis.
+
+Algebraic Cryptanalysis of Hidden Field Equation (HFE) Cryptosystems Using Grobner Bases (Joux)
+Using Algebraic Geometry (Cox)
+
 # References
 
 
