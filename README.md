@@ -48,7 +48,8 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 
 # Idea: Use Gröebner basis.
 
-Algebraic Cryptanalysis of Hidden Field Equation (HFE) Cryptosystems Using Grobner Bases
+Algebraic Cryptanalysis of Hidden Field Equation (HFE) Cryptosystems Using Grobner Bases (Joux)
+Using Algebraic Geometry (Cox)
 
 # References
 
