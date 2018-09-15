@@ -6,7 +6,7 @@
 #define PROB 50
 
 // Block size
-#define K 70
+#define K 50
 
 // Max weight per block
 #define MAX_WEIGHT 3
