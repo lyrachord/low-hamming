@@ -49,10 +49,14 @@ Runtime: 2^26, 40 seconds (7 days GPU)
 # Idea: Use Gröebner basis.
 
 Algebraic Cryptanalysis of Hidden Field Equation (HFE) Cryptosystems Using Grobner Bases (Joux)
+
 Using Algebraic Geometry (Cox)
 
 # References
 
+## Cryptanalysis of the RSA Subgroup Assumption from TCC 2005
+
+Good example.
 
 ## Factoring Unbalanced Moduli with Known Bits 
 
