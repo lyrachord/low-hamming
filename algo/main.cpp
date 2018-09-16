@@ -118,7 +118,7 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
       
       // Look bits of q in the correct range
       guess_q_str = mpz_get_str(NULL, 2, guess_q);
-      guess_q_substr = guess_q_str.substr(0,K);
+      guess_q_substr = guess_q_str.substr(1,K-1);
       if(hamming(guess_q_substr) <= MAX_WEIGHT){
         if(mpz_cmp(guess_p,real_p)==0){
           //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";

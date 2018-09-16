@@ -2,7 +2,6 @@
 using namespace std;
 using namespace std::chrono;
 
-
 void state_sanity(){
 
   cout << "log(p) = " << BITS << endl;
