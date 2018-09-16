@@ -7,10 +7,10 @@ default: all
 all: guess
 
 guess: main.cpp
-	$(CC) main.cpp -o o.o $(CFLAGS)
+	$(CC) main.cpp tools.cpp -o o.o $(CFLAGS)
 
 groebner: groebner.cpp
-	$(CC) groebner.cpp -o groebner.o $(CFLAGS)
+	$(CC) groebner.cpp tools.cpp -o groebner.o $(CFLAGS)
 
 list: generate_list.cpp
 	$(CC) generate_list.cpp -o list.o $(CFLAGS)

@@ -1,5 +1,6 @@
 #include "main.hpp"
-#include "parameters.hpp"
+
+
 using namespace std;
 using namespace std::chrono;
 
@@ -28,13 +29,14 @@ int main(int argc, char** argv){
   
   // Generate keys
   srand(time(NULL));
-  generate_N();
+  mpz_inits(P, Q, N, NULL);
+  generate_N(P, Q, N);
   int tries = 1;
   while( test_keys(P,Q)==false ){
-    generate_N();
+    generate_N(P, Q, N);
     tries++;
   }
-  print_keys();
+  print_keys(p_str, q_str, n_str, P, Q, N, FORMAT);
   state_sanity();
 
   cout << "Found keys after "<< tries << " tries" << endl << endl;
@@ -56,52 +58,21 @@ int main(int argc, char** argv){
 
 }
 
-void state_sanity(){
-
-  cout << "log(p) = " << BITS << endl;
-  cout << "block_size = " << K << endl;
-  cout << "number_of_blocks = " << (int) BITS/K << endl;
-  cout << "list_scope = " << SCOPE << endl;
-
-  // Algorithms runs in scope^(number of blocks).
-  // Display log2() of that number. Should be less than 64.
-
-  mpz_t sanity;
-  mpz_init(sanity);
-  mpz_ui_pow_ui(sanity, SCOPE, (int)BITS/K);
-
-
-  cout << endl << "\033[1;31mTotal Runtime: 2^"<< mpz_sizeinbase (sanity, 2) << "\033[0m" << endl << endl;
-
-
-}
-
-
 void guess_block(int block){
 
   mpz_t guess_p, guess_q, real_p, small_modulus, modulus;
   mpz_inits(guess_p, guess_q, real_p, small_modulus, modulus, NULL);
-  
 
   mpz_ui_pow_ui(modulus, 2, K*(block+1));
   mpz_ui_pow_ui(small_modulus, 2, K*(block));
   mpz_mod(guess_p, P, small_modulus);
   mpz_mod(real_p, P, modulus);
-
-
-  
-  //mpz_set_ui(guess_p,0);
-  
-
   
   guess_next_block(block, guess_p, real_p);
-  //cout << "candidates: " << candidates << endl;
 
 }
 
 int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
-
-
 
   string success="";
 
@@ -138,8 +109,6 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
       guess_p_str = mpz_get_str(NULL, 2, guess_p);
 
       // Compute inverse
-      
-      
       inverse(invp, guess_p, modulus);
       
       // Compute corresponding guess_q
@@ -153,16 +122,11 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
       if(hamming(guess_q_substr) <= MAX_WEIGHT){
         if(mpz_cmp(guess_p,real_p)==0){
           //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
-
           success += "\033[1;32mFound in position "+to_string(cont)+"\033[0m\n"; 
-        }
-        else{
-          //cout << "Guess_p[2]:" << format(guess_p_str);
         }
         
         cont ++ ;
       }
-      
     }
     candidates_file.close();
   }
@@ -174,152 +138,4 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p){
   }
   cout << success;
   return cont;
-}
-
-void generate_N(){
-
-  mpz_inits(P, Q, N, NULL);
-
-  //Sample P,Q  
-  mpz_set_ui(P,1);
-  mpz_set_ui(Q,1);
-
-  mpz_t aux;
-  mpz_init(aux);
-  for(int i = 1; i < BITS-1; i++ )
-  {
-    if(rand()%PROB==0){
-      mpz_ui_pow_ui(aux,2,i);
-      mpz_add(P,P,aux);
-    }
-    if(rand()%PROB==0){
-      mpz_ui_pow_ui(aux,2,i);
-      mpz_add(Q,Q,aux);
-    }
-  }
-  mpz_ui_pow_ui(aux,2,BITS-1);
-  mpz_add(P,P,aux);
-  mpz_add(Q,Q,aux);
-  
-  mpz_mul(N, P, Q);
-
-
-
-}
-
-void print_keys(){
-
-  p_str = mpz_get_str(p_str, 2, P);
-  q_str = mpz_get_str(q_str, 2, Q);
-  n_str = mpz_get_str(n_str, 2, N);
-
-  gmp_printf("p = %Zd\nq = %Zd\nn = %Zd\n", P, Q, N);
-  cout << "p[2] = " << format(p_str) << endl;
-  cout << "q[2] = " << format(q_str) << endl;
-  cout << "n[2] = " << format(n_str) << endl;
-}
-
-void inverse (mpz_t inv, mpz_t x, mpz_t modulus){
-
-
-  mpz_t a, b, u, x_aux;
-
-  mpz_inits(a, b, u, x_aux, NULL);
-  mpz_set(x_aux, x);
-
-  mpz_set_ui(a, 0);
-  mpz_init_set(b, modulus);
-  mpz_init_set_ui(u, 1);
-
-  mpz_t q, r;
-  mpz_inits(q, r, NULL);
-
-  mpz_t old_x, old_a, old_b, old_u;
-  mpz_inits(old_x, old_a, old_b, old_u, NULL);
-  
-
-  while(mpz_cmp_ui(x_aux,0)>0){
-    //gmp_printf("x = %Zd, a = %Zd, b = %Zd, u = %Zd\n",x_aux,a,b,u);
-
-    // Save values for multiple affectation
-    mpz_set(old_x, x_aux);
-    mpz_set(old_a, a);
-    mpz_set(old_b, b);
-    mpz_set(old_u, u);
-
-    mpz_fdiv_q(q, old_b, old_x);
-    
-    mpz_mod(x_aux, old_b, old_x);
-    mpz_set(a, old_u);
-    mpz_set(b, old_x);
-    mpz_mul(u, q, old_u);
-    mpz_neg(u, u);
-    mpz_add(u, old_a, u);
-
-  }
-  if(mpz_cmp_ui(b,1)==0){
-    mpz_mod(inv, a, modulus);
-    return;
-  }
-
-  cout << "Error in division (not coprime)" << endl;
-  return;
-}
-
-// Extended Euclides
-/*
-//https://stackoverflow.com/questions/14736514/optimising-code-for-modular-arithmetic
-
-function inverse(x, m)
-    a, b, u := 0, m, 1
-    while x > 0
-        q, r := divide(b, x)
-        x, a, b, u := b % x, u, x, a - q * u
-    if b == 1 return a % m
-    error "must be coprime"
-*/
-
-int hamming(string s){
-  return count(s.begin(), s.end(), '1');
-}
-
-string format(string ss){
-
-  if (FORMAT == false) return ss+"\n";
-  string s = ss;
-  int prepend = s.length()%K;
-  if(prepend != 0){
-    for(int i = 0; i < K-prepend; i++){
-      s = "0"+s;
-    }
-  }
-
-  string ret = "\n";
-  int block_number;
-  for(int i = 0; i<=(int) (s.length()-1)/K; i++){
-
-    block_number = (int) (s.length()-1)/K - i + 1;
-    ret = ret +  s.substr(i*K,K)+ "  /"+ to_string(block_number)+"\n";
-  }
-  return ret;
-}
-
-
-bool test_keys(mpz_t p, mpz_t q){
-
-  string p_str = mpz_get_str(NULL, 2, p);
-  string q_str = mpz_get_str(NULL, 2, q);
-
-  string limb_p;
-  string limb_q;
-
-  for(int i = 0; i < (int) BITS/K; i++){
-    // Read the i-th block of p and q
-    limb_p = p_str.substr(i*K,K);
-    limb_q = q_str.substr(i*K,K);
-    if(hamming(limb_p) > MAX_WEIGHT || hamming(limb_q) > MAX_WEIGHT){
-      return false;
-    }
-  }
-  return true;
 }
