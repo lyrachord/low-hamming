@@ -1,15 +1,14 @@
-
 // Number of bits of each factor
 #define BITS 1024
 
 // One bit "1" in each PROB bits
-#define PROB 56
+#define PROB 64
 
 // Block size
-#define K 112
+#define K 100
 
 // Max weight per block
-#define MAX_WEIGHT 2
+#define MAX_WEIGHT 3
 
 // How many candidates to test per list
-#define SCOPE 7
+#define SCOPE 5

@@ -6,6 +6,7 @@
 #include <chrono>
 #include <fstream>
 #include <algorithm>
+#include <string>
 #include "parameters.hpp"
 
 using namespace std;
@@ -18,7 +19,7 @@ int hamming(string);
 void state_sanity();
 void print_keys(char *, char *, char *, mpz_t, mpz_t, mpz_t, bool);
 string format(string, bool);
-
+void next_candidate(mpz_t, mpz_t);
 
 void carryless_multiply(mpz_t, mpz_t);
 

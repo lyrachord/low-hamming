@@ -4,9 +4,12 @@ using namespace std::chrono;
 
 void state_sanity(){
 
+  int blocks = (int) BITS/K;
+
   cout << "log(p) = " << BITS << endl;
   cout << "block_size = " << K << endl;
-  cout << "number_of_blocks = " << (int) BITS/K << endl;
+  cout << "number_of_blocks = " << blocks << endl;
+  cout << "hamming = " << blocks*MAX_WEIGHT << endl;
   cout << "list_scope = " << SCOPE << endl;
 
   // Algorithms runs in scope^(number of blocks).
@@ -30,7 +33,7 @@ void generate_N(mpz_t P, mpz_t Q, mpz_t N){
 
   mpz_t aux;
   mpz_init(aux);
-  for(int i = 1; i < BITS-1; i++ )
+  for(int i = 1; i < BITS-2; i++ )
   {
     if(rand()%PROB==0){
       mpz_ui_pow_ui(aux,2,i);
@@ -49,8 +52,8 @@ void generate_N(mpz_t P, mpz_t Q, mpz_t N){
 
 
 void print_keys(
-    char * p_str, char * q_str, char * n_str,
-    mpz_t P, mpz_t Q, mpz_t N, bool FORMAT){
+  char * p_str, char * q_str, char * n_str,
+  mpz_t P, mpz_t Q, mpz_t N, bool FORMAT){
 
   p_str = mpz_get_str(p_str, 2, P);
   q_str = mpz_get_str(q_str, 2, Q);
@@ -62,7 +65,11 @@ void print_keys(
   cout << "n[2] = " << format(n_str, FORMAT) << endl;
 }
 
-void inverse (mpz_t inv, mpz_t x, mpz_t modulus){
+void inverse(mpz_t inv, mpz_t x, mpz_t modulus){
+  mpz_invert(inv, x, modulus);
+}
+
+void inverse_SE (mpz_t inv, mpz_t x, mpz_t modulus){
 
 
   mpz_t a, b, u, x_aux;
@@ -136,14 +143,18 @@ string format(string ss, bool FORMAT){
 
 bool test_keys(mpz_t p, mpz_t q){
 
-  string p_str = mpz_get_str(NULL, 2, p);
-  string q_str = mpz_get_str(NULL, 2, q);
+  string prepend = "";
+  for(int i = 0; i< K- BITS % K; i++){
+    prepend += "0";  
+  }
+
+  string p_str = prepend + mpz_get_str(NULL, 2, p);
+  string q_str = prepend + mpz_get_str(NULL, 2, q);
 
   string limb_p;
   string limb_q;
 
-  for(int i = 0; i < (int) BITS/K; i++){
-    // Read the i-th block of p and q
+  for(int i = 0; i <= (int) BITS/K; i++){
     limb_p = p_str.substr(i*K,K);
     limb_q = q_str.substr(i*K,K);
     if(hamming(limb_p) > MAX_WEIGHT || hamming(limb_q) > MAX_WEIGHT){
@@ -213,4 +224,59 @@ void array_bits(mpz_t x, int res[BITS]){
     res[i] = mpz_get_ui(bits_aux[i]);
   }
 
+}
+
+void next_candidate(mpz_t x, mpz_t next){
+
+
+  mpz_t power_of_two, limit;
+  mpz_inits(power_of_two, limit, NULL);
+
+  // If x is 0
+  if(mpz_popcount(x) == 0){
+    mpz_set_ui(next, 1);
+    return;
+  }
+  
+  mpz_t result;
+  mpz_init_set_ui(result, 0);
+
+
+  // Add least set bit
+  mpz_set(result, x);
+  int least_set_bit = mpz_scan1(result, 0);
+
+  mpz_ui_pow_ui(power_of_two, 2, least_set_bit);
+  mpz_add(result, result, power_of_two);
+
+  int hx = mpz_popcount(x);
+  int hresult = mpz_popcount(result);
+  
+  mpz_ui_pow_ui(limit, 2, K);  
+
+  // If limit is reached
+  if(mpz_tstbit(result, K)==1)
+  { 
+    mpz_set_ui(result, 0);
+    for (int i = 0; i < hx+1; i++)
+    {
+      mpz_setbit(result, i);
+    }
+    mpz_set(next, result);
+    return;    
+  }
+
+  if(hresult == hx){
+
+    mpz_set(next, result);
+    return;
+  }
+  else{
+    int lost_bits = hx - hresult;
+    for (int i = 0; i < lost_bits; i++)
+    {
+      mpz_setbit(result, i);
+    }
+    mpz_set(next, result);
+  }
 }
