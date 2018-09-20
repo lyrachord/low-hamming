@@ -2,12 +2,14 @@ CC      = g++
 CFLAGS  = -Wall -O3 -std=c++0x -lgmp
 RM      = rm -f
 
-default: all
+default: 
 
-all: guess
+weight: weight.cpp
+	$(CC) weight.cpp tools.cpp -o weight.o $(CFLAGS)
 
-guess: main.cpp
-	$(CC) main.cpp tools.cpp -o o.o $(CFLAGS)
+distance: distance.cpp
+	$(CC) distance.cpp tools.cpp -o distance.o $(CFLAGS)
+
 
 groebner: groebner.cpp
 	$(CC) groebner.cpp tools.cpp -o groebner.o $(CFLAGS)

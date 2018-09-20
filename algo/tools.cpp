@@ -2,11 +2,34 @@
 using namespace std;
 using namespace std::chrono;
 
-void state_sanity(){
+void state_sanity_weight(mpz_t P,mpz_t Q,mpz_t N){
 
   int blocks = (int) BITS/K;
 
   cout << "log(p) = " << BITS << endl;
+  cout << "hamming(p) = " << mpz_popcount(P) << endl;
+  cout << "hamming(q) = " << mpz_popcount(Q) << endl;
+  cout << "block_size = " << K << endl;
+  cout << "number_of_blocks = " << blocks << endl;
+  cout << "list_scope = " << SCOPE << endl;
+
+  // Algorithms runs in scope^(number of blocks).
+  // Display log2() of that number. Should be less than 64.
+
+  mpz_t sanity;
+  mpz_init(sanity);
+  mpz_ui_pow_ui(sanity, SCOPE, (int)BITS/K);
+
+
+  cout << endl << "\033[1;31mTotal Runtime: 2^"<< mpz_sizeinbase (sanity, 2) << "\033[0m" << endl << endl;
+}
+
+void state_sanity_distance(mpz_t P,mpz_t Q,mpz_t N){
+
+  int blocks = (int) BITS/K;
+
+  cout << "log(p) = " << BITS << endl;
+  cout << "hamming_dist(p, q) = " << mpz_hamdist(P,Q) << endl;
   cout << "block_size = " << K << endl;
   cout << "number_of_blocks = " << blocks << endl;
   cout << "hamming = " << blocks*MAX_WEIGHT << endl;
@@ -24,8 +47,7 @@ void state_sanity(){
 }
 
 
-
-void generate_N(mpz_t P, mpz_t Q, mpz_t N){
+void generate_N_weight(mpz_t P, mpz_t Q, mpz_t N){
 
   //Sample P,Q  
   mpz_set_ui(P,1);
@@ -33,6 +55,41 @@ void generate_N(mpz_t P, mpz_t Q, mpz_t N){
 
   mpz_t aux;
   mpz_init(aux);
+
+  int index_p, index_q;
+
+  for(int i = 1; i < SET_BITS-1; i++ )
+  {
+    index_p = 0;
+    index_q = 0;
+
+    while(mpz_tstbit(P, index_p)==1){
+      index_p = rand()%(BITS-1) + 1;
+    }
+    while(mpz_tstbit(Q, index_q)==1){
+      index_q = rand()%(BITS-1) + 1;
+    }
+    mpz_setbit(P, index_p);
+    mpz_setbit(Q, index_q);
+  }
+
+  mpz_setbit(P, BITS-1);
+  mpz_setbit(Q, BITS-1);
+  
+  mpz_mul(N, P, Q);
+}
+
+
+
+void generate_N_weight_poisson(mpz_t P, mpz_t Q, mpz_t N){
+
+  //Sample P,Q  
+  mpz_set_ui(P,1);
+  mpz_set_ui(Q,1);
+
+  mpz_t aux;
+  mpz_init(aux);
+
   for(int i = 1; i < BITS-2; i++ )
   {
     if(rand()%PROB==0){
@@ -50,6 +107,26 @@ void generate_N(mpz_t P, mpz_t Q, mpz_t N){
   mpz_mul(N, P, Q);
 }
 
+void generate_N_distance(mpz_t P, mpz_t Q, mpz_t N){
+
+  gmp_randstate_t state;
+  gmp_randinit_default (state);
+  //Sample P 
+  mpz_urandomb(P, state, BITS);
+
+  mpz_setbit (P, 0);
+  mpz_setbit (P, BITS-1);
+
+  mpz_set(Q,P);
+
+  for(int i = 1; i < BITS-2; i++ )
+  {
+    if(rand()%PROB==0){
+      mpz_combit(Q,i);   
+    }
+  }
+  mpz_mul(N, P, Q);
+}
 
 void print_keys(
   char * p_str, char * q_str, char * n_str,
@@ -120,6 +197,18 @@ int hamming(string s){
   return count(s.begin(), s.end(), '1');
 }
 
+
+int hamming_distance(string s1, string s2){
+
+  int diff_bits = 0;
+  for(unsigned int i=0; i < s1.length(); i++){
+    if(s1[i] != s2[i]){
+      diff_bits ++;
+    }
+  }
+  return diff_bits;
+}
+
 string format(string ss, bool FORMAT){
 
   if (FORMAT == false) return ss+"\n";
@@ -141,7 +230,7 @@ string format(string ss, bool FORMAT){
   return ret;
 }
 
-bool test_keys(mpz_t p, mpz_t q){
+bool test_keys_weight(mpz_t p, mpz_t q){
 
   string prepend = "";
   for(int i = 0; i< K- BITS % K; i++){
@@ -165,6 +254,28 @@ bool test_keys(mpz_t p, mpz_t q){
   return true;
 }
 
+bool test_keys_distance(mpz_t p, mpz_t q){
+
+  string prepend = "";
+  for(int i = 0; i< K- BITS % K; i++){
+    prepend += "0";  
+  }
+
+  string p_str = prepend + mpz_get_str(NULL, 2, p);
+  string q_str = prepend + mpz_get_str(NULL, 2, q);
+
+  string limb_p;
+  string limb_q;
+
+  for(int i = 0; i <= (int) BITS/K; i++){
+    limb_p = p_str.substr(i*K,K);
+    limb_q = q_str.substr(i*K,K);
+    if(hamming_distance(limb_p, limb_q) > MAX_WEIGHT){
+      return false;
+    }
+  }
+  return true;
+}
 
 void carryless_multiply(mpz_t x, mpz_t y){
 
@@ -226,7 +337,7 @@ void array_bits(mpz_t x, int res[BITS]){
 
 }
 
-void next_candidate(mpz_t x, mpz_t next){
+void next_candidate_weight(mpz_t x, mpz_t next){
 
 
   mpz_t power_of_two, limit;
@@ -279,4 +390,9 @@ void next_candidate(mpz_t x, mpz_t next){
     }
     mpz_set(next, result);
   }
+}
+
+void next_candidate_distance(mpz_t x, mpz_t next){
+
+  mpz_add_ui(next, x, 1);
 }
