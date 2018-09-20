@@ -2,10 +2,14 @@
 
 C++ and GMP bignum library
 
-In C/, "make" and then ./o.o. If list does not exist, generate it with "make list && ./list.o" and save output to precomp/<block_size>-<max_weight_per_block>
+   ```make weight
+    ./weight.o
+   ```
+   
+## New optimization: 2048 with hamming = 20 and high key ocurrence (>1/10) in 5 GPU minutes.
 
 
-## Benchmarks for log2(n)= 2048
+## Benchmarks for log2(n)= 2048 (OLD)
 
 ### Brute-force security = 115 bits
 log2(p) = 1024
