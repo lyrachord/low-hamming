@@ -2,9 +2,9 @@
 
 C++ and GMP bignum library
 
-   ```make weight
-    ./weight.o
-   ```
+   ```make weight```
+   ```./weight.o```
+   
    
 ## New optimization: 2048 with hamming = 20 and high key ocurrence (>1/10) in 5 GPU minutes.
 
