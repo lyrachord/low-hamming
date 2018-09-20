@@ -9,6 +9,7 @@ void state_sanity_weight(mpz_t P,mpz_t Q,mpz_t N){
   cout << "log(p) = " << BITS << endl;
   cout << "hamming(p) = " << mpz_popcount(P) << endl;
   cout << "hamming(q) = " << mpz_popcount(Q) << endl;
+  cout << "1 bit every " << BITS/SET_BITS<<endl;
   cout << "block_size = " << K << endl;
   cout << "number_of_blocks = " << blocks << endl;
   cout << "list_scope = " << SCOPE << endl;
@@ -119,11 +120,11 @@ void generate_N_distance(mpz_t P, mpz_t Q, mpz_t N){
 
   mpz_set(Q,P);
 
-  for(int i = 1; i < BITS-2; i++ )
+  int index;
+  for(int i = 0; i < SET_BITS; i++ )
   {
-    if(rand()%PROB==0){
-      mpz_combit(Q,i);   
-    }
+    index = rand()%(BITS-1)+1;
+    mpz_combit(Q,index);   
   }
   mpz_mul(N, P, Q);
 }

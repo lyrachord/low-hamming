@@ -12,4 +12,5 @@
 using namespace std;
 
 void guess_block(int);
-int guess_next_block(int, mpz_t, mpz_t);
+int guess_next_block(int, mpz_t, mpz_t, mpz_t);
+int guess_first_block(mpz_t);

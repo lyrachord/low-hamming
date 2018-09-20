@@ -8,10 +8,10 @@
 #define SET_BITS 20
 
 // Block size
-#define K 128
+#define K 120
 
 // Max weight per block
 #define MAX_WEIGHT 3
 
 // How many candidates to test per list
-#define SCOPE 10
+#define SCOPE 6

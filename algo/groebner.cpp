@@ -8,7 +8,7 @@ char * p_str, * q_str, * n_str ;
 
 mpz_t P, Q, N;
 
-bool FORMAT = false;
+bool FORMAT = true;
 
 int main(int argc, char** argv){
 
@@ -18,80 +18,41 @@ int main(int argc, char** argv){
   if(argc == 2)
   {
     if((string)argv[1] == "-f"){
-      FORMAT = true;
+      FORMAT = false;
     }  
   }
-
-  int big = 512;
-  int small = 512;
 
   gmp_randstate_t state;
   gmp_randinit_default (state);
   
-  mpz_t x,X, aux;
+  mpz_t X;
+  mpz_init(X);
 
-  mpz_inits(x,X, aux, NULL);
-  
+  mpz_t X0;
+  mpz_init(X0);
 
-  mpz_t modulus;
-  mpz_init(modulus);
-  mpz_ui_pow_ui(modulus, 2, big);
-
-
-
-  mpz_t small_modulus;
-  mpz_init(small_modulus);
-  mpz_ui_pow_ui(small_modulus, 2, small);
-
-
-  mpz_urandomb(X, state, big);
-  mpz_urandomb(aux, state, small);
-
-  mpz_mod(x, X, small_modulus);
-
-  int iterations = 1;
-
-  high_resolution_clock::time_point t1a = high_resolution_clock::now();
-  
-  // A: Invert in R_modulus, multiply and reduce
-  for(int i=0; i < iterations; i++)
-  {
-    gmp_printf("X = %Zd\n", X);
-    mpz_invert(X, X, modulus);
-    gmp_printf("X inverted = %Zd\n", X);
-    mpz_mul(X, X, X);
-    gmp_printf("X squared = %Zd\n", X);
-    mpz_mod(X, X, modulus);    
-    gmp_printf("X reduced = %Zd\n", X);
+  mpz_urandomb(X, state, BITS);
+  while(mpz_probab_prime_p (X, 50) > 0){
+    mpz_urandomb(X, state, BITS);
+    gmp_printf("%Zd\n", X);
   }
-  
-  high_resolution_clock::time_point t2a = high_resolution_clock::now();
-  auto duration_a = duration_cast<microseconds>( t2a - t1a ).count();
+  mpz_set(X0,X);
 
-  cout << "Completed in "<< duration_a <<" microseconds." << endl;
-
-
-  high_resolution_clock::time_point t1b = high_resolution_clock::now();
-  
-  // B: Multiply, substract, invert
-  for(int i=0; i < iterations; i++)
+  int h0 = mpz_popcount(X);
+  int h = h0;
+  int cont = 1;
+  while(h>3*h0/4)
   {
-    gmp_printf("x = %Zd\n", x);
-    mpz_mul(x,aux,x);
-    gmp_printf("x squared = %Zd\n", x);
-    mpz_sub(x,x,aux);
-    gmp_printf("x minus = %Zd\n", x);
-    mpz_invert(x,x, small_modulus);
-    gmp_printf("x inverted = %Zd\n", x);
-
+    h = mpz_popcount(X);
+    cout << h << endl;
+    //string x_str = mpz_get_str(NULL, 2, X);
+    //gmp_printf("%Zd,", X);
+    //cout << format(x_str, FORMAT);
+    mpz_add(X, X, X0);
+    cont ++;
   }
-  high_resolution_clock::time_point t2d = high_resolution_clock::now();
-  auto duration_b = duration_cast<microseconds>( t2d - t1b ).count();
-
-  cout << "Completed in "<< duration_b <<" microseconds." << endl;
+  cout << cont << ", "<< h0 << ", " << h <<endl;
   
-
-
   return 0;
 
 }
