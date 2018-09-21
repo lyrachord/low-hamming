@@ -226,7 +226,10 @@ string format(string ss, bool FORMAT){
   for(int i = 0; i<=(int) (s.length()-1)/K; i++){
 
     block_number = (int) (s.length()-1)/K - i + 1;
-    ret = ret +  s.substr(i*K,K)+ "  /"+ to_string(block_number)+"\n";
+    string sub = s.substr(i*K,K);
+    ret = ret +  sub + "  /";
+    ret = ret + to_string(block_number) + " - ";
+    ret = ret + to_string(count(sub.begin(), sub.end(), '1'))+"\n";
   }
   return ret;
 }
@@ -341,11 +344,11 @@ void array_bits(mpz_t x, int res[BITS]){
 void next_candidate_weight(mpz_t x, mpz_t next){
 
 
-  mpz_t power_of_two, limit;
-  mpz_inits(power_of_two, limit, NULL);
+  mpz_t power_of_two;
+  mpz_inits(power_of_two, NULL);
 
   // If x is 0
-  if(mpz_popcount(x) == 0){
+  if(mpz_cmp_ui(x,0) == 0){
     mpz_set_ui(next, 1);
     return;
   }
@@ -358,13 +361,13 @@ void next_candidate_weight(mpz_t x, mpz_t next){
   mpz_set(result, x);
   int least_set_bit = mpz_scan1(result, 0);
 
-  mpz_ui_pow_ui(power_of_two, 2, least_set_bit);
+  mpz_set_ui(power_of_two, 0);
+  mpz_setbit(power_of_two, least_set_bit);
   mpz_add(result, result, power_of_two);
 
   int hx = mpz_popcount(x);
   int hresult = mpz_popcount(result);
-  
-  mpz_ui_pow_ui(limit, 2, K);  
+
 
   // If limit is reached
   if(mpz_tstbit(result, K)==1)
@@ -378,13 +381,13 @@ void next_candidate_weight(mpz_t x, mpz_t next){
     return;    
   }
 
-  if(hresult == hx){
+  int lost_bits = hx - hresult;
+  if(lost_bits == 0){
 
     mpz_set(next, result);
     return;
   }
   else{
-    int lost_bits = hx - hresult;
     for (int i = 0; i < lost_bits; i++)
     {
       mpz_setbit(result, i);
