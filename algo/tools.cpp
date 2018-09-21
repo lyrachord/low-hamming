@@ -78,6 +78,8 @@ void generate_N_weight(mpz_t P, mpz_t Q, mpz_t N){
   mpz_setbit(Q, BITS-1);
   
   mpz_mul(N, P, Q);
+
+  mpz_clear(aux);
 }
 
 
@@ -106,6 +108,9 @@ void generate_N_weight_poisson(mpz_t P, mpz_t Q, mpz_t N){
   mpz_add(P,P,aux);
   mpz_add(Q,Q,aux);
   mpz_mul(N, P, Q);
+
+  mpz_clear(aux);
+
 }
 
 void generate_N_distance(mpz_t P, mpz_t Q, mpz_t N){
@@ -394,6 +399,8 @@ void next_candidate_weight(mpz_t x, mpz_t next){
     }
     mpz_set(next, result);
   }
+
+  mpz_clears(power_of_two, result, NULL);
 }
 
 void next_candidate_distance(mpz_t x, mpz_t next){

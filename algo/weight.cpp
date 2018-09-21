@@ -58,6 +58,8 @@ int main(int argc, char** argv){
   auto duration = duration_cast<microseconds>( t2 - t1 ).count();
 
   cout << "Completed in "<< duration <<" microseconds." << endl;
+
+  mpz_clears(P, Q, N, NULL);
   return 0;
 
 }
@@ -68,8 +70,14 @@ void guess_block(int block){
   mpz_t guess_p, guess_q, real_p, small_modulus, modulus;
   mpz_inits(guess_p, guess_q, real_p, small_modulus, modulus, NULL);
 
-  mpz_ui_pow_ui(modulus, 2, K*(block+1));
-  mpz_ui_pow_ui(small_modulus, 2, K*(block));
+  //mpz_ui_pow_ui(modulus, 2, K*(block+1));
+  //mpz_ui_pow_ui(small_modulus, 2, K*(block));
+  mpz_set_ui(modulus, 0);
+  mpz_setbit(modulus, K*(block+1));
+  mpz_set_ui(small_modulus, 0);
+  mpz_setbit(small_modulus, K*(block));
+  
+  // This can be speed up using mpz_tdiv_r_2exp.
   mpz_mod(guess_p, P, small_modulus);
   mpz_mod(real_p, P, modulus);
   mpz_mod(guess_q, Q, small_modulus);
@@ -77,6 +85,7 @@ void guess_block(int block){
   
   //old_guess_next_block(block, guess_p, real_p, guess_q);
   guess_next_block(block, guess_p, real_p, guess_q);
+  mpz_clears(guess_p, guess_q, real_p, small_modulus, modulus, NULL);
 }
 
 int guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q){
@@ -90,10 +99,14 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q
   string success="";
 
   int cont = 0;
-  mpz_t invp, Ndiv, small_modulus, big_modulus;
-  mpz_inits(invp, Ndiv, small_modulus, big_modulus, NULL);
-  mpz_ui_pow_ui(small_modulus, 2, K);
-  mpz_ui_pow_ui(big_modulus, 2, K*block);
+  mpz_t invp, small_modulus, big_modulus;
+  mpz_inits(invp, small_modulus, big_modulus, NULL);
+
+  mpz_set_ui(small_modulus, 0);
+  mpz_setbit(small_modulus, K);
+  mpz_set_ui(big_modulus, 0);
+  mpz_setbit(big_modulus, K*block);
+
   
   // Store the real string of bits of p in this range, in order to compare later
   mpz_t block_real_p;
@@ -107,7 +120,6 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q
 
   // Make a guess on p
   mpz_set_ui(block_guess_p, 0);
-  
 
   mpz_t aux;
   mpz_init(aux);
@@ -146,15 +158,14 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q
     if(mpz_popcount(block_guess_q) <= MAX_WEIGHT){
 
       if(mpz_cmp(block_guess_p,block_real_p)==0){
-          //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
+        //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
         success += "\033[1;32mFound in position "+to_string(cont+1)+"\033[0m\n"; 
       }
-    /*cout << endl << "\033[1;34m";
-    COUT  guess_p_str << " - "; COUT  guess_q_str;
-    cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;*/
+      /*cout << endl << "\033[1;34m";
+      COUT  guess_p_str << " - "; COUT  guess_q_str;
+      cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;*/
       cont ++ ;
     }
-
     
     next_candidate_weight(block_guess_p, block_guess_p);
     if (mpz_popcount(block_guess_p)>MAX_WEIGHT){
@@ -169,8 +180,83 @@ int guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q
     success = "\033[1;31mNot found\033[0m\n";
   }
   cout << success;
+  
+  mpz_clears(invp, small_modulus, big_modulus, block_real_p, block_guess_p, block_guess_q, A, B, NULL);
+  
   return cont;
 }
+
+
+int guess_first_block(mpz_t real_p){
+
+  string success="";
+
+  int cont = 0;
+  mpz_t invp, modulus, Nmod;
+  mpz_inits(invp, modulus, Nmod, NULL);
+
+  mpz_set_ui(modulus, 0);
+  mpz_setbit(modulus, K);
+  
+  mpz_fdiv_r_2exp(Nmod, N, K);
+
+  string guess_q_str;
+  string guess_p_str;
+
+  mpz_t block_guess_p, block_guess_q;
+
+  // Make a guess  
+  mpz_init_set_ui(block_guess_p, 1);
+  mpz_init(block_guess_q);
+
+  while ( cont < SCOPE )
+  {
+
+    // Compute inverse
+    mpz_invert(invp, block_guess_p, modulus);
+
+    // Compute corresponding guess_q
+    mpz_mul(block_guess_q, invp, Nmod);
+    //mpz_mod(block_guess_q, block_guess_q, modulus);
+    mpz_tdiv_r_2exp(block_guess_q, block_guess_q, K);
+    
+    if(mpz_popcount(block_guess_q) <= MAX_WEIGHT){
+      /*cout << "\033[1;34m";
+      COUT  guess_p_str << " - "; COUT  guess_q_str;
+      cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;
+    */
+      if(mpz_cmp(block_guess_p,real_p)==0){
+          //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
+        success += "\033[1;32mFound in position "+to_string(cont+1)+"\033[0m\n"; 
+      }
+      /*cout << endl << "\033[1;34m";
+      COUT  guess_p_str << " - "; COUT  guess_q_str;
+      cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;*/
+      cont ++ ;
+    }
+
+    next_candidate_weight(block_guess_p, block_guess_p);
+    while(mpz_tstbit(block_guess_p,0)==0){
+      next_candidate_weight(block_guess_p, block_guess_p);
+    }
+    if (mpz_popcount(block_guess_p)>MAX_WEIGHT){
+      break;
+    } 
+
+  }
+
+  cout << cont << " candidates"<<endl;
+
+
+  if(success == ""){
+    success = "\033[1;31mNot found\033[0m\n";
+  }
+  cout << success;
+  mpz_clears(invp, modulus, Nmod, block_guess_p, block_guess_q, NULL);
+
+  return cont;
+}
+
 
 
 int old_guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previous_q){
@@ -238,72 +324,6 @@ int old_guess_next_block(int block, mpz_t previous_p, mpz_t real_p, mpz_t previo
     if (mpz_popcount(block_guess_p)>MAX_WEIGHT){
       break;
     } 
-  }
-
-  cout << cont << " candidates"<<endl;
-
-
-  if(success == ""){
-    success = "\033[1;31mNot found\033[0m\n";
-  }
-  cout << success;
-  return cont;
-}
-
-
-
-int guess_first_block(mpz_t real_p){
-
-  string success="";
-
-  int cont = 0;
-  mpz_t invp, modulus, Nmod;
-  mpz_inits(invp, modulus, Nmod, NULL);
-  mpz_ui_pow_ui(modulus, 2, K);
-  mpz_mod(Nmod, N, modulus);
-  string guess_q_str;
-  string guess_p_str;
-
-  mpz_t block_guess_p, block_guess_q;
-
-  // Make a guess  
-  mpz_init_set_ui(block_guess_p, 1);
-  mpz_init(block_guess_q);
-
-  while ( cont < SCOPE )
-  {
-
-    // Compute inverse
-    mpz_invert(invp, block_guess_p, modulus);
-
-    // Compute corresponding guess_q
-    mpz_mul(block_guess_q, invp, Nmod);
-    //mpz_mod(block_guess_q, block_guess_q, modulus);
-    mpz_tdiv_r_2exp(block_guess_q, block_guess_q, K);
-    
-    if(mpz_popcount(block_guess_q) <= MAX_WEIGHT){
-      /*cout << "\033[1;34m";
-      COUT  guess_p_str << " - "; COUT  guess_q_str;
-      cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;
-    */
-      if(mpz_cmp(block_guess_p,real_p)==0){
-          //cout << "\033[1;33m" << format(guess_p_str) << "\033[0m";
-        success += "\033[1;32mFound in position "+to_string(cont+1)+"\033[0m\n"; 
-      }
-      /*cout << endl << "\033[1;34m";
-      COUT  guess_p_str << " - "; COUT  guess_q_str;
-      cout << "\033[0m  :  " <<  mpz_popcount(guess_q) << endl;*/
-        cont ++ ;
-    }
-
-    next_candidate_weight(block_guess_p, block_guess_p);
-    while(mpz_tstbit(block_guess_p,0)==0){
-      next_candidate_weight(block_guess_p, block_guess_p);
-    }
-    if (mpz_popcount(block_guess_p)>MAX_WEIGHT){
-      break;
-    } 
-
   }
 
   cout << cont << " candidates"<<endl;

@@ -14,4 +14,4 @@
 #define MAX_WEIGHT 3
 
 // How many candidates to test per list
-#define SCOPE 10
+#define SCOPE 100
