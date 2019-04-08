@@ -1,4 +1,4 @@
-# Low Hamming key recovery attack
+# Low Hamming factoring
 
 C++ and GMP bignum library
 
