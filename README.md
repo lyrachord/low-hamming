@@ -107,7 +107,6 @@ Good example.
 ### Blog. 
   
   https://windowsontheory.org/2012/05/15/979/
-  TODO: Download this before it dissapears. Part II too.
 
 
 ## Twenty Years of Attacks on the RSA Cryptosystem
